@@ -1,6 +1,6 @@
 # Swap extention
 
-Encapsulate sparrow swap for easy use by Kryptonite
+Encapsulate [sparrow swap](https://sparrowswap.xyz) for easy use by Kryptonite
 
 ## InstantiateMsg
 
