@@ -58,7 +58,7 @@ pub fn read_pair_config(storage: &dyn Storage, pair_key: &[u8]) -> Result<PairCo
 }
 
 pub fn store_swap_infos(storage: &mut dyn Storage, pair_key: &[u8], swap_info: &SwapInfo) -> StdResult<()> {
-    SWAP_INFOS.save(storage, pair_key, swap_info);
+    SWAP_INFOS.save(storage, pair_key, swap_info)?;
     Ok(())
 }
 
@@ -79,7 +79,7 @@ pub fn read_swap_info_default_zero(storage: &dyn Storage, pair_key: &[u8]) -> Re
 }
 
 pub fn store_swap_whitelist(storage: &mut dyn Storage, caller: Addr, is_whitelist: bool) -> StdResult<()> {
-    SWAP_WHITELIST.save(storage, caller, &is_whitelist);
+    SWAP_WHITELIST.save(storage, caller, &is_whitelist)?;
     Ok(())
 }
 

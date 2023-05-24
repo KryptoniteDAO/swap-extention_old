@@ -1,0 +1,1 @@
+59a69709627918bf53c0d103db265b3d0a6eae8a9e4daa63b21a437e5d885976  swap_extention.wasm

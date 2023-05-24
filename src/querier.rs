@@ -96,7 +96,7 @@ pub fn query_balance(
 mod tests {
     use cosmwasm_std::Decimal;
     use super::*;
-    use cosmwasm_std::testing::{mock_dependencies, MockApi, MockQuerier, MockStorage};
+    use cosmwasm_std::testing::{mock_dependencies};
     use crate::state::{store_config, store_pair_configs, store_swap_whitelist};
 
     #[test]
