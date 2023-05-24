@@ -3,7 +3,9 @@ use crate::helper::{Asset, AssetInfo};
 use cosmwasm_schema::{cw_serde};
 
 #[cw_serde]
-pub struct InstantiateMsg {}
+pub struct InstantiateMsg {
+    pub owner: Addr,
+}
 
 
 #[cw_serde]

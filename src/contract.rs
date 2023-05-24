@@ -10,13 +10,13 @@ use crate::state::{Config, store_config};
 pub fn instantiate(
     deps: DepsMut,
     _env: Env,
-    info: MessageInfo,
-    _msg: InstantiateMsg,
+    _info: MessageInfo,
+    msg: InstantiateMsg,
 ) -> StdResult<Response> {
     store_config(
         deps.storage,
         &Config {
-            owner: info.sender.clone(),
+            owner: msg.owner,
         },
     )?;
 

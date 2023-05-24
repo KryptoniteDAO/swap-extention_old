@@ -1,1 +1,1 @@
-1feac6ed92d396d489009a6e202186f03dbb10cd42d2ee77ed69ad322a708f06  ./target/wasm32-unknown-unknown/release/swap_extention.wasm
+45739276c7aaf8f17d7297db990f993270783d1e879632e37715b274222b214f  ./target/wasm32-unknown-unknown/release/swap_extention.wasm
