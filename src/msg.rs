@@ -1,8 +1,6 @@
 use crate::helper::{Asset, AssetInfo};
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{Addr, Coin, Decimal, Empty, Uint128};
-use schemars::JsonSchema;
-use std::fmt;
+use cosmwasm_std::{Addr, Coin, Decimal, Uint128};
 
 #[cw_serde]
 pub struct InstantiateMsg {
