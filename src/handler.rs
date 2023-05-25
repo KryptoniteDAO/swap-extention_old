@@ -1,27 +1,19 @@
+use cosmwasm_std::{Addr, Coin, CosmosMsg, Decimal, DepsMut, Env, MessageInfo, Response, StdError, SubMsg, to_binary, WasmMsg};
 use crate::error::ContractError;
-use crate::helper::{pair_key, Asset, AssetInfo};
-use crate::msg::SwapMsg;
-use crate::state::{
-    is_address_in_whitelist, read_config, read_pair_config, read_swap_info_default_zero,
-    store_config, store_pair_configs, store_swap_infos, store_swap_whitelist, Config, PairConfig,
-};
-use cosmwasm_std::{
-    to_binary, Addr, Coin, CosmosMsg, Decimal, DepsMut, Env, MessageInfo, Response, StdError,
-    SubMsg, WasmMsg,
-};
+use crate::helper::{Asset, AssetInfo, pair_key};
+use crate::msg::{SwapMsg};
+use crate::querier::query_simulation;
+use crate::state::{Config, is_address_in_whitelist, PairConfig, read_config, read_pair_config, read_swap_info_default_zero, store_config, store_pair_configs, store_swap_infos, store_swap_whitelist};
+
 
 /**
  * Update the config of the contract
  */
 #[allow(clippy::too_many_arguments)]
-pub fn update_pair_config(
-    deps: DepsMut,
-    info: MessageInfo,
-    asset_infos: [AssetInfo; 2],
-    pair_address: Addr,
-    max_spread: Option<Decimal>,
-    to: Option<Addr>,
-) -> Result<Response, ContractError> {
+pub fn update_pair_config(deps: DepsMut, info: MessageInfo,
+                          asset_infos: [AssetInfo; 2],
+                          pair_address: Addr, max_spread: Option<Decimal>,
+                          to: Option<Addr>) -> Result<Response, ContractError> {
     let config = read_config(deps.storage)?;
     if info.sender != config.owner {
         return Err(ContractError::Unauthorized {});
@@ -47,21 +39,14 @@ pub fn update_pair_config(
     Ok(Response::new().add_attributes(vec![
         ("action", "update_pair_config"),
         ("pair_address", pair_address.as_str()),
-        (
-            "max_spread",
-            max_spread.unwrap_or_default().to_string().as_str(),
-        ),
-    ]))
+        ("max_spread", max_spread.unwrap_or_default().to_string().as_str()), ]))
 }
+
 
 /**
  * Change the owner of the contract
  */
-pub fn change_owner(
-    deps: DepsMut,
-    info: MessageInfo,
-    new_owner: Addr,
-) -> Result<Response, ContractError> {
+pub fn change_owner(deps: DepsMut, info: MessageInfo, new_owner: Addr) -> Result<Response, ContractError> {
     let mut config: Config = read_config(deps.storage)?;
     if info.sender != config.owner {
         return Err(ContractError::Unauthorized {});
@@ -76,12 +61,8 @@ pub fn change_owner(
     ]))
 }
 
-pub fn update_pair_status(
-    deps: DepsMut,
-    info: MessageInfo,
-    asset_infos: [AssetInfo; 2],
-    is_disabled: bool,
-) -> Result<Response, ContractError> {
+pub fn update_pair_status(deps: DepsMut, info: MessageInfo,
+                          asset_infos: [AssetInfo; 2], is_disabled: bool) -> Result<Response, ContractError> {
     let config = read_config(deps.storage)?;
     if info.sender != config.owner {
         return Err(ContractError::Unauthorized {});
@@ -100,12 +81,8 @@ pub fn update_pair_status(
     ]))
 }
 
-pub fn update_pair_max_spread(
-    deps: DepsMut,
-    info: MessageInfo,
-    asset_infos: [AssetInfo; 2],
-    max_spread: Decimal,
-) -> Result<Response, ContractError> {
+pub fn update_pair_max_spread(deps: DepsMut, info: MessageInfo,
+                              asset_infos: [AssetInfo; 2], max_spread: Decimal) -> Result<Response, ContractError> {
     let config = read_config(deps.storage)?;
     if info.sender != config.owner {
         return Err(ContractError::Unauthorized {});
@@ -120,23 +97,11 @@ pub fn update_pair_max_spread(
     Ok(Response::new().add_attributes(vec![
         ("action", "update_pair_max_spread"),
         ("pair_address", pair_config.pair_address.as_str()),
-        (
-            "max_spread",
-            pair_config
-                .max_spread
-                .unwrap_or_default()
-                .to_string()
-                .as_str(),
-        ),
+        ("max_spread", pair_config.max_spread.unwrap_or_default().to_string().as_str()),
     ]))
 }
 
-pub fn set_whitelist(
-    deps: DepsMut,
-    info: MessageInfo,
-    caller: Addr,
-    is_whitelist: bool,
-) -> Result<Response, ContractError> {
+pub fn set_whitelist(deps: DepsMut, info: MessageInfo, caller: Addr, is_whitelist: bool) -> Result<Response, ContractError> {
     let config = read_config(deps.storage)?;
     if info.sender != config.owner {
         return Err(ContractError::Unauthorized {});
@@ -151,13 +116,7 @@ pub fn set_whitelist(
 * U => A=>B=>SWAP=>B=>A
  * Swap the coin
  */
-pub fn swap_denom(
-    deps: DepsMut,
-    _env: Env,
-    info: MessageInfo,
-    from_coin: Coin,
-    target_denom: String,
-) -> Result<Response, ContractError> {
+pub fn swap_denom(deps: DepsMut, _env: Env, info: MessageInfo, from_coin: Coin, target_denom: String) -> Result<Response, ContractError> {
     let sender = info.sender.clone();
     // check wihitelist
     if !is_address_in_whitelist(deps.storage, sender.clone())? {
@@ -166,17 +125,18 @@ pub fn swap_denom(
     if from_coin.denom == target_denom {
         return Err(ContractError::InvalidDenom {});
     }
+    if from_coin.amount.is_zero() {
+        return Err(ContractError::InvalidAmount {});
+    }
 
     let payment = info
         .funds
         .iter()
         .find(|x| x.denom == from_coin.denom && x.amount == from_coin.amount)
         .ok_or_else(|| {
-            StdError::generic_err(format!(
-                "No {} assets are provided to swap.",
-                from_coin.denom
-            ))
+            StdError::generic_err(format!("No {} assets are provided to swap.", from_coin.denom))
         })?;
+
 
     let asset_infos = [
         AssetInfo::NativeToken {
@@ -190,16 +150,24 @@ pub fn swap_denom(
 
     let mut swap_info = read_swap_info_default_zero(deps.storage, &pair_key)?;
 
+
     let pair_config = read_pair_config(deps.storage, &pair_key)?;
     if pair_config.is_disabled {
         return Err(ContractError::PairNotFound {});
     }
+
 
     // swap
     let asset = Asset {
         amount: payment.amount,
         info: asset_infos[0].clone(),
     };
+    let pair_address = pair_config.pair_address.clone();
+    let offer_asset = asset.clone();
+    let simulation_response = query_simulation(&deps.querier,pair_address.clone().to_string(), offer_asset.clone())?;
+
+    swap_info.total_amount_out += simulation_response.return_amount;
+    swap_info.total_amount_in += payment.amount;
 
     let mut _max_spread = None;
     if pair_config.max_spread.is_some() {
@@ -213,7 +181,7 @@ pub fn swap_denom(
     };
 
     let sub_msg = SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
-        contract_addr: pair_config.pair_address.clone().to_string(),
+        contract_addr: pair_address.clone().to_string(),
         msg: to_binary(&swap)?,
         funds: vec![Coin {
             denom: payment.denom.to_string(),
@@ -221,24 +189,19 @@ pub fn swap_denom(
         }],
     }));
 
-    let res = Response::new().add_submessage(sub_msg).add_attributes(vec![
-        ("action", "swap"),
-        ("from_coin", from_coin.to_string().as_str()),
-        ("target_denom", target_denom.as_str()),
-    ]);
 
-    swap_info.total_amount_in += payment.amount;
-
-    // for attr in res.clone().attributes {
-    //     if attr.key == "return_amount" {
-    //         if let return_value = attr.value {
-    //             let return_amount: Uint128 = return_value.parse().unwrap();
-    //             swap_info.total_amount_out += return_amount;
-    //         }
-    //     }
-    // }
+    let res = Response::new()
+        .add_submessage(sub_msg)
+        .add_attributes(vec![
+            ("action", "swap"),
+            ("from_coin", from_coin.to_string().as_str()),
+            ("target_denom", target_denom.as_str()),
+        ]);
 
     store_swap_infos(deps.storage, &pair_key, &swap_info)?;
 
     Ok(res)
 }
+
+
+

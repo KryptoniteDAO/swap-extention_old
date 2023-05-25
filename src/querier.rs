@@ -1,14 +1,8 @@
-use crate::helper::{pair_key, AssetInfo};
-use crate::msg::{ConfigResponse, PairConfigResponse, SwapInfoResponse};
-use crate::state::{
-    read_config, read_pair_config, read_swap_info_default_zero, read_swap_whitelist, Config,
-    PairConfig, SwapInfo,
-};
-use cosmwasm_std::{
-    to_binary, Addr, BalanceResponse, BankQuery, Deps, QuerierWrapper, QueryRequest, StdResult,
-    Uint128, WasmQuery,
-};
+use cosmwasm_std::{Addr, BalanceResponse, BankQuery, Deps, QuerierWrapper, QueryRequest, StdResult, to_binary, Uint128, WasmQuery};
 use cw20::{BalanceResponse as Cw20BalanceResponse, Cw20QueryMsg};
+use crate::helper::{Asset, AssetInfo, pair_key};
+use crate::msg::{ConfigResponse, CumulativePricesResponse, PairConfigResponse, ReverseSimulationResponse, SimulationResponse, SwapInfoResponse, SwapQueryMsg};
+use crate::state::{Config, PairConfig, read_config, read_pair_config, read_swap_info_default_zero, read_swap_whitelist, SwapInfo};
 
 /**
  * Query the config of the oracle
@@ -34,6 +28,7 @@ pub fn query_is_swap_whitelist(deps: Deps, caller: Addr) -> StdResult<bool> {
     Ok(is_whitelist)
 }
 
+
 /**
  * Query the pair config of the asset
  */
@@ -48,6 +43,7 @@ pub fn query_pair_config(deps: Deps, asset_infos: [AssetInfo; 2]) -> StdResult<P
         to: pair_config.to,
     })
 }
+
 
 /// Returns a token balance for an account.
 /// ## Params
@@ -76,6 +72,7 @@ pub fn query_token_balance(
     Ok(res.balance)
 }
 
+
 /// Returns a native token's balance for a specific account.
 /// ## Params
 /// * **querier** is an object of type [`QuerierWrapper`].
@@ -95,20 +92,63 @@ pub fn query_balance(
     Ok(balance.amount.amount)
 }
 
+/// ## Description
+/// Returns information about a swap simulation in a [`SimulationResponse`] object.
+/// ## Params
+/// * **deps** is an object of type [`Deps`].
+///
+/// * **offer_asset** is an object of type [`Asset`]. This is the asset to swap as well as an amount of the said asset.
+pub fn query_simulation(querier: &QuerierWrapper, contract_addr: String, offer_asset: Asset) -> StdResult<SimulationResponse> {
+    let simulation_response = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+        contract_addr: contract_addr.clone(),
+        msg: to_binary(&SwapQueryMsg::Simulation { offer_asset })?,
+    }))?;
+    Ok(simulation_response)
+}
+
+/// ## Description
+/// Returns information about a reverse swap simulation in a [`ReverseSimulationResponse`] object.
+/// ## Params
+/// * **deps** is an object of type [`Deps`].
+///
+/// * **ask_asset** is an object of type [`Asset`]. This is the asset to swap to as well as the desired
+/// amount of ask assets to receive from the swap.
+pub fn query_reverse_simulation(
+    querier: &QuerierWrapper, contract_addr: String, ask_asset: Asset
+) -> StdResult<ReverseSimulationResponse> {
+    let reverse_simulation_response = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+        contract_addr: contract_addr.clone(),
+        msg: to_binary(&SwapQueryMsg::ReverseSimulation { ask_asset })?,
+    }))?;
+    Ok(reverse_simulation_response)
+}
+
+/// ## Description
+/// Returns information about cumulative prices for the assets in the pool using a [`CumulativePricesResponse`] object.
+/// ## Params
+/// * **deps** is an object of type [`Deps`].
+///
+/// * **env** is an object of type [`Env`].
+pub fn query_cumulative_prices(querier: &QuerierWrapper, contract_addr: String) -> StdResult<CumulativePricesResponse> {
+    let cumulative_prices_response = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+        contract_addr: contract_addr.clone(),
+        msg: to_binary(&SwapQueryMsg::CumulativePrices {})?,
+    }))?;
+    Ok(cumulative_prices_response)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::state::{store_config, store_pair_configs, store_swap_whitelist};
-    use cosmwasm_std::testing::mock_dependencies;
     use cosmwasm_std::Decimal;
+    use super::*;
+    use cosmwasm_std::testing::{mock_dependencies};
+    use crate::state::{store_config, store_pair_configs, store_swap_whitelist};
 
     #[test]
     fn test_query_config() {
         let mut deps = mock_dependencies();
         let owner = Addr::unchecked("owner");
-        let config = Config {
-            owner: owner.clone(),
-        };
+        let config = Config { owner: owner.clone() };
         store_config(&mut deps.storage, &config).unwrap();
         let res = query_config(deps.as_ref()).unwrap();
         assert_eq!(res.owner, owner);
@@ -124,6 +164,7 @@ mod tests {
         let res = query_is_swap_whitelist(deps.as_ref(), Addr::unchecked("other")).unwrap();
         assert_eq!(res, false);
     }
+
     #[test]
     fn test_query_pair_config() {
         let mut deps = mock_dependencies();

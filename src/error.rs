@@ -32,4 +32,7 @@ pub enum ContractError {
 
     #[error("Invalid owner")]
     InvalidOwner,
+
+    #[error("Invalid amount")]
+    InvalidAmount,
 }
