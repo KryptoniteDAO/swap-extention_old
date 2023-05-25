@@ -1,7 +1,7 @@
-use std::fmt;
-use cosmwasm_schema::{cw_serde};
-use cosmwasm_std::{Addr, Api, QuerierWrapper, StdResult, Uint128};
 use crate::querier::{query_balance, query_token_balance};
+use cosmwasm_schema::cw_serde;
+use cosmwasm_std::{Addr, Api, QuerierWrapper, StdResult, Uint128};
+use std::fmt;
 
 /// This enum describes available Token types.
 #[cw_serde]
@@ -11,7 +11,6 @@ pub enum AssetInfo {
     /// Native token
     NativeToken { denom: String },
 }
-
 
 impl fmt::Display for AssetInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -117,7 +116,6 @@ pub struct Asset {
     /// A token amount
     pub amount: Uint128,
 }
-
 
 /// ## Description
 /// Calculates a pair key from the specified parameters in the `asset_infos` variable.

@@ -1,12 +1,13 @@
-use cosmwasm_std::{Addr, Coin, Decimal, Uint128};
 use crate::helper::{Asset, AssetInfo};
-use cosmwasm_schema::{cw_serde};
+use cosmwasm_schema::{cw_serde, QueryResponses};
+use cosmwasm_std::{Addr, Coin, Decimal, Empty, Uint128};
+use schemars::JsonSchema;
+use std::fmt;
 
 #[cw_serde]
 pub struct InstantiateMsg {
     pub owner: Addr,
 }
-
 
 #[cw_serde]
 pub struct PairConfigMsg {
@@ -16,7 +17,6 @@ pub struct PairConfigMsg {
     pub max_spread: Option<Decimal>,
     pub to: Option<Addr>,
 }
-
 
 #[cw_serde]
 pub struct ConfigResponse {
@@ -38,7 +38,7 @@ pub struct PairConfigResponse {
 }
 
 #[cw_serde]
-pub enum SwapMsg{
+pub enum SwapMsg {
     Swap {
         offer_asset: Asset,
         belief_price: Option<Decimal>,
@@ -73,19 +73,18 @@ pub enum ExecuteMsg {
     SwapDenom {
         from_coin: Coin,
         target_denom: String,
-    }
+    },
 }
 
 #[cw_serde]
+#[derive(QueryResponses)]
 pub enum QueryMsg {
+    #[returns(ConfigResponse)]
     QueryConfig {},
-    QueryIsSwapWhitelist {
-        caller: Addr
-    },
-    QueryPairConfig {
-        asset_infos: [AssetInfo; 2]
-    },
-    QuerySwapInfo {
-        asset_infos: [AssetInfo; 2]
-    },
+    #[returns(bool)]
+    QueryIsSwapWhitelist { caller: Addr },
+    #[returns(PairConfigResponse)]
+    QueryPairConfig { asset_infos: [AssetInfo; 2] },
+    #[returns(SwapInfoResponse)]
+    QuerySwapInfo { asset_infos: [AssetInfo; 2] },
 }

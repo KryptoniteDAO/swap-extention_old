@@ -1,8 +1,14 @@
-use cosmwasm_std::{Addr, BalanceResponse, BankQuery, Deps, QuerierWrapper, QueryRequest, StdResult, to_binary, Uint128, WasmQuery};
-use cw20::{BalanceResponse as Cw20BalanceResponse, Cw20QueryMsg};
-use crate::helper::{AssetInfo, pair_key};
+use crate::helper::{pair_key, AssetInfo};
 use crate::msg::{ConfigResponse, PairConfigResponse, SwapInfoResponse};
-use crate::state::{Config, PairConfig, read_config, read_pair_config, read_swap_info_default_zero, read_swap_whitelist, SwapInfo};
+use crate::state::{
+    read_config, read_pair_config, read_swap_info_default_zero, read_swap_whitelist, Config,
+    PairConfig, SwapInfo,
+};
+use cosmwasm_std::{
+    to_binary, Addr, BalanceResponse, BankQuery, Deps, QuerierWrapper, QueryRequest, StdResult,
+    Uint128, WasmQuery,
+};
+use cw20::{BalanceResponse as Cw20BalanceResponse, Cw20QueryMsg};
 
 /**
  * Query the config of the oracle
@@ -16,7 +22,7 @@ pub fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
 
 pub fn query_swap_info(deps: Deps, asset_infos: [AssetInfo; 2]) -> StdResult<SwapInfoResponse> {
     let pair_key = pair_key(&asset_infos);
-    let swap_info: SwapInfo = read_swap_info_default_zero(deps.storage,&pair_key)?;
+    let swap_info: SwapInfo = read_swap_info_default_zero(deps.storage, &pair_key)?;
     Ok(SwapInfoResponse {
         total_amount_in: swap_info.total_amount_in,
         total_amount_out: swap_info.total_amount_out,
@@ -42,7 +48,6 @@ pub fn query_pair_config(deps: Deps, asset_infos: [AssetInfo; 2]) -> StdResult<P
         to: pair_config.to,
     })
 }
-
 
 /// Returns a token balance for an account.
 /// ## Params
@@ -71,7 +76,6 @@ pub fn query_token_balance(
     Ok(res.balance)
 }
 
-
 /// Returns a native token's balance for a specific account.
 /// ## Params
 /// * **querier** is an object of type [`QuerierWrapper`].
@@ -91,19 +95,20 @@ pub fn query_balance(
     Ok(balance.amount.amount)
 }
 
-
 #[cfg(test)]
 mod tests {
-    use cosmwasm_std::Decimal;
     use super::*;
-    use cosmwasm_std::testing::{mock_dependencies};
     use crate::state::{store_config, store_pair_configs, store_swap_whitelist};
+    use cosmwasm_std::testing::mock_dependencies;
+    use cosmwasm_std::Decimal;
 
     #[test]
     fn test_query_config() {
         let mut deps = mock_dependencies();
         let owner = Addr::unchecked("owner");
-        let config = Config { owner: owner.clone() };
+        let config = Config {
+            owner: owner.clone(),
+        };
         store_config(&mut deps.storage, &config).unwrap();
         let res = query_config(deps.as_ref()).unwrap();
         assert_eq!(res.owner, owner);
@@ -139,7 +144,5 @@ mod tests {
         };
         store_pair_configs(&mut deps.storage, &pair_key, &pair_config).unwrap();
         // let res = query_pair_config(deps.as_ref(), asset_infos).unwrap();
-
     }
-
 }

@@ -5,7 +5,6 @@ use cosmwasm_std::{Addr, Decimal, StdError, StdResult, Storage, Uint128};
 
 use cw_storage_plus::{Item, Map};
 
-
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Config {
     pub owner: Addr,
@@ -43,7 +42,11 @@ pub fn read_config(storage: &dyn Storage) -> StdResult<Config> {
     CONFIG.load(storage)
 }
 
-pub fn store_pair_configs(storage: &mut dyn Storage, pair_key: &[u8], pair_config: &PairConfig) -> Result<PairConfig, StdError> {
+pub fn store_pair_configs(
+    storage: &mut dyn Storage,
+    pair_key: &[u8],
+    pair_config: &PairConfig,
+) -> Result<PairConfig, StdError> {
     PAIR_CONFIGS.update(storage, pair_key, |old| match old {
         Some(_) => Ok(pair_config.clone()),
         None => Ok(pair_config.clone()),
@@ -57,18 +60,26 @@ pub fn read_pair_config(storage: &dyn Storage, pair_key: &[u8]) -> Result<PairCo
     Ok(pair_config.unwrap())
 }
 
-pub fn store_swap_infos(storage: &mut dyn Storage, pair_key: &[u8], swap_info: &SwapInfo) -> StdResult<()> {
+pub fn store_swap_infos(
+    storage: &mut dyn Storage,
+    pair_key: &[u8],
+    swap_info: &SwapInfo,
+) -> StdResult<()> {
     SWAP_INFOS.save(storage, pair_key, swap_info)?;
     Ok(())
 }
 
 pub fn read_swap_info(storage: &dyn Storage, pair_key: &[u8]) -> Result<SwapInfo, StdError> {
-    let swap_info = SWAP_INFOS.may_load(storage, pair_key)?
+    let swap_info = SWAP_INFOS
+        .may_load(storage, pair_key)?
         .ok_or_else(|| StdError::generic_err("Swap not found"));
     Ok(swap_info.unwrap())
 }
 
-pub fn read_swap_info_default_zero(storage: &dyn Storage, pair_key: &[u8]) -> Result<SwapInfo, StdError> {
+pub fn read_swap_info_default_zero(
+    storage: &dyn Storage,
+    pair_key: &[u8],
+) -> Result<SwapInfo, StdError> {
     let swap_info = SWAP_INFOS.may_load(storage, pair_key)?;
     Ok(swap_info.unwrap_or({
         SwapInfo {
@@ -78,13 +89,18 @@ pub fn read_swap_info_default_zero(storage: &dyn Storage, pair_key: &[u8]) -> Re
     }))
 }
 
-pub fn store_swap_whitelist(storage: &mut dyn Storage, caller: Addr, is_whitelist: bool) -> StdResult<()> {
+pub fn store_swap_whitelist(
+    storage: &mut dyn Storage,
+    caller: Addr,
+    is_whitelist: bool,
+) -> StdResult<()> {
     SWAP_WHITELIST.save(storage, caller, &is_whitelist)?;
     Ok(())
 }
 
 pub fn read_swap_whitelist(storage: &dyn Storage, caller: Addr) -> Result<bool, StdError> {
-    let is_whitelist = SWAP_WHITELIST.may_load(storage, caller)?
+    let is_whitelist = SWAP_WHITELIST
+        .may_load(storage, caller)?
         .ok_or_else(|| StdError::generic_err("Swap not found"));
     Ok(is_whitelist.unwrap())
 }
