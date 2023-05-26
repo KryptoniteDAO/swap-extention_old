@@ -158,3 +158,6 @@ pub struct CumulativePricesResponse {
     /// The last value for the token1 cumulative price
     pub price1_cumulative_last: Uint128,
 }
+
+#[cw_serde]
+pub struct MigrateMsg {}

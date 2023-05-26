@@ -2,7 +2,7 @@ use cosmwasm_std::{entry_point, Binary, Deps, DepsMut, Env, MessageInfo, Respons
 use crate::error::ContractError;
 use crate::handler::{change_owner, set_whitelist, swap_denom, update_pair_config, update_pair_max_spread, update_pair_status};
 use crate::helper::pair_key;
-use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::querier::{query_config, query_cumulative_prices, query_is_swap_whitelist, query_pair_config, query_reverse_simulation, query_simulation, query_swap_info};
 use crate::state::{Config, read_pair_config, store_config};
 
