@@ -116,7 +116,7 @@ pub fn set_whitelist(deps: DepsMut, info: MessageInfo, caller: Addr, is_whitelis
 * U => A=>B=>SWAP=>B=>A
  * Swap the coin
  */
-pub fn swap_denom(deps: DepsMut, _env: Env, info: MessageInfo, from_coin: Coin, target_denom: String) -> Result<Response, ContractError> {
+pub fn swap_denom(deps: DepsMut, _env: Env, info: MessageInfo, from_coin: Coin, target_denom: String,to_address:Option<String>) -> Result<Response, ContractError> {
     let sender = info.sender.clone();
     // check wihitelist
     if !is_address_in_whitelist(deps.storage, sender.clone())? {
@@ -173,11 +173,15 @@ pub fn swap_denom(deps: DepsMut, _env: Env, info: MessageInfo, from_coin: Coin, 
     if pair_config.max_spread.is_some() {
         _max_spread = Some(pair_config.max_spread.unwrap());
     }
+    let mut  to_addr = to_address;
+    if to_addr.is_none() {
+        to_addr = Some(pair_config.to.unwrap_or(sender.clone()).to_string());
+    }
     let swap = SwapMsg::Swap {
         offer_asset: asset,
         belief_price: None,
         max_spread: _max_spread,
-        to: Some(pair_config.to.unwrap_or(sender.clone()).to_string()),
+        to: to_addr,
     };
 
     let sub_msg = SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {

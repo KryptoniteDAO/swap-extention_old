@@ -54,7 +54,7 @@ pub fn execute(
             update_pair_max_spread(deps, info, asset_infos, max_spread)
         }
         ExecuteMsg::SetWhitelist { caller, is_whitelist } => set_whitelist(deps, info, caller, is_whitelist),
-        ExecuteMsg::SwapDenom { from_coin, target_denom } => swap_denom(deps, env, info, from_coin, target_denom),
+        ExecuteMsg::SwapDenom { from_coin, target_denom,to_address } => swap_denom(deps, env, info, from_coin, target_denom,to_address),
     }
 }
 

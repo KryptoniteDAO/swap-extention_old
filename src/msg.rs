@@ -63,6 +63,7 @@ pub enum ExecuteMsg {
     SwapDenom {
         from_coin: Coin,
         target_denom: String,
+        to_address: Option<String>,
     }
 }
 
