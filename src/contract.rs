@@ -2,7 +2,7 @@ use cosmwasm_std::{entry_point, Binary, Deps, DepsMut, Env, MessageInfo, Respons
 use crate::error::ContractError;
 use crate::handler::{change_owner, set_whitelist, swap_denom, update_pair_config, update_pair_max_spread, update_pair_status};
 use crate::helper::pair_key;
-use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::querier::{query_config, query_cumulative_prices, query_is_swap_whitelist, query_pair_config, query_reverse_simulation, query_simulation, query_swap_info};
 use crate::state::{Config, read_pair_config, store_config};
 
@@ -54,7 +54,7 @@ pub fn execute(
             update_pair_max_spread(deps, info, asset_infos, max_spread)
         }
         ExecuteMsg::SetWhitelist { caller, is_whitelist } => set_whitelist(deps, info, caller, is_whitelist),
-        ExecuteMsg::SwapDenom { from_coin, target_denom } => swap_denom(deps, env, info, from_coin, target_denom),
+        ExecuteMsg::SwapDenom { from_coin, target_denom,to_address } => swap_denom(deps, env, info, from_coin, target_denom,to_address),
     }
 }
 
@@ -88,7 +88,10 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     }
 }
 
-
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
+    Ok(Response::default())
+}
 #[cfg(test)]
 mod tests {
     #[test]
