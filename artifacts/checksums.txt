@@ -1,1 +1,1 @@
-5b7e6b1baf41c16363a8dc9d493b7de5211600bc148006fe96f5c4865c26dce0  swap_extention.wasm
+38ecd79755faaf352e0b29f6326ee76fcc6d2fac950c50f5f5b4e63d196f541a  swap_extention.wasm
