@@ -63,6 +63,7 @@ pub enum ExecuteMsg {
     SwapDenom {
         from_coin: Coin,
         target_denom: String,
+        to_address: Option<String>,
     }
 }
 
@@ -158,3 +159,6 @@ pub struct CumulativePricesResponse {
     /// The last value for the token1 cumulative price
     pub price1_cumulative_last: Uint128,
 }
+
+#[cw_serde]
+pub struct MigrateMsg {}
