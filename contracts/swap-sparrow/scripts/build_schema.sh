@@ -5,6 +5,7 @@ set -o pipefail
 
 projectPath=$(cd "$(dirname "${0}")" && cd ../ && pwd)
 
-for c in "$projectPath"/contracts/*; do
-  (cd $c && cargo schema)
-done
+#for c in "$projectPath"/contracts/*; do
+#  (cd $c && cargo schema)
+#done
+cargo schema
