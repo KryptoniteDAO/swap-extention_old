@@ -116,7 +116,7 @@ pub fn set_whitelist(deps: DepsMut, info: MessageInfo, caller: Addr, is_whitelis
 * U => A=>B=>SWAP=>B=>A
  * Swap the coin
  */
-pub fn swap_denom(deps: DepsMut, _env: Env, info: MessageInfo, from_coin: Coin, target_denom: String,to_address:Option<String>) -> Result<Response, ContractError> {
+pub fn swap_denom(deps: DepsMut, _env: Env, info: MessageInfo, from_coin: Coin, target_denom: String, to_address: Option<String>) -> Result<Response, ContractError> {
     let sender = info.sender.clone();
     // check wihitelist
     if !is_address_in_whitelist(deps.storage, sender.clone())? {
@@ -164,7 +164,7 @@ pub fn swap_denom(deps: DepsMut, _env: Env, info: MessageInfo, from_coin: Coin, 
     };
     let pair_address = pair_config.pair_address.clone();
     let offer_asset = asset.clone();
-    let simulation_response = query_simulation(&deps.querier,pair_address.clone().to_string(), offer_asset.clone())?;
+    let simulation_response = query_simulation(&deps.querier, pair_address.clone().to_string(), offer_asset.clone())?;
 
     swap_info.total_amount_out += simulation_response.return_amount;
     swap_info.total_amount_in += payment.amount;
@@ -173,7 +173,7 @@ pub fn swap_denom(deps: DepsMut, _env: Env, info: MessageInfo, from_coin: Coin, 
     if pair_config.max_spread.is_some() {
         _max_spread = Some(pair_config.max_spread.unwrap());
     }
-    let mut  to_addr = to_address;
+    let mut to_addr = to_address;
     if to_addr.is_none() {
         to_addr = Some(pair_config.to.unwrap_or(sender.clone()).to_string());
     }

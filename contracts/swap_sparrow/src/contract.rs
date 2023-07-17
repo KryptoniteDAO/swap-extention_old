@@ -54,7 +54,7 @@ pub fn execute(
             update_pair_max_spread(deps, info, asset_infos, max_spread)
         }
         ExecuteMsg::SetWhitelist { caller, is_whitelist } => set_whitelist(deps, info, caller, is_whitelist),
-        ExecuteMsg::SwapDenom { from_coin, target_denom,to_address } => swap_denom(deps, env, info, from_coin, target_denom,to_address),
+        ExecuteMsg::SwapDenom { from_coin, target_denom, to_address } => swap_denom(deps, env, info, from_coin, target_denom, to_address),
     }
 }
 
@@ -92,6 +92,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
     Ok(Response::default())
 }
+
 #[cfg(test)]
 mod tests {
     #[test]

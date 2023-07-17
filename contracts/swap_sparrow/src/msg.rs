@@ -1,6 +1,6 @@
 use cosmwasm_std::{Addr, Coin, Decimal, Uint128};
 use crate::helper::{Asset, AssetInfo};
-use cosmwasm_schema::{cw_serde,QueryResponses};
+use cosmwasm_schema::{cw_serde, QueryResponses};
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -64,7 +64,7 @@ pub enum ExecuteMsg {
         from_coin: Coin,
         target_denom: String,
         to_address: Option<String>,
-    }
+    },
 }
 
 #[cw_serde]
@@ -87,12 +87,12 @@ pub enum QueryMsg {
     #[returns(SimulationResponse)]
     QuerySimulation {
         asset_infos: [AssetInfo; 2],
-        offer_asset: Asset
+        offer_asset: Asset,
     },
     #[returns(ReverseSimulationResponse)]
     QueryReverseSimulation {
         asset_infos: [AssetInfo; 2],
-        ask_asset: Asset
+        ask_asset: Asset,
     },
     #[returns(CumulativePricesResponse)]
     QueryCumulativePrices {
@@ -101,7 +101,7 @@ pub enum QueryMsg {
 }
 
 #[cw_serde]
-pub enum SwapMsg{
+pub enum SwapMsg {
     Swap {
         offer_asset: Asset,
         belief_price: Option<Decimal>,
@@ -112,7 +112,7 @@ pub enum SwapMsg{
 
 #[cw_serde]
 #[derive(QueryResponses)]
-pub enum SwapQueryMsg{
+pub enum SwapQueryMsg {
     /// Returns information about a swap simulation in a [`SimulationResponse`] object.
     #[returns(SimulationResponse)]
     Simulation { offer_asset: Asset },

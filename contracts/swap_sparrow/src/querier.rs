@@ -114,7 +114,7 @@ pub fn query_simulation(querier: &QuerierWrapper, contract_addr: String, offer_a
 /// * **ask_asset** is an object of type [`Asset`]. This is the asset to swap to as well as the desired
 /// amount of ask assets to receive from the swap.
 pub fn query_reverse_simulation(
-    querier: &QuerierWrapper, contract_addr: String, ask_asset: Asset
+    querier: &QuerierWrapper, contract_addr: String, ask_asset: Asset,
 ) -> StdResult<ReverseSimulationResponse> {
     let reverse_simulation_response = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
         contract_addr: contract_addr.clone(),
