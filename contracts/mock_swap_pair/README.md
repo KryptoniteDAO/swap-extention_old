@@ -1,9 +1,10 @@
-# 这是一个简单的Mock swap的合约
+#This is a simple contract for Mock swap
 
-1. 每一个pair合约对应一个资产对
-2. 、往该合约冲对应资产数量，则表示该合约交易对的价格
+1. Each pair contract corresponds to an asset pair
+2. If the corresponding asset quantity is offset against the contract, it represents the price of the contract transaction pair
 
-# 编译
+
+# compile
 
 ```bash
 docker run --rm -v "$(pwd)":/code \
@@ -12,7 +13,7 @@ docker run --rm -v "$(pwd)":/code \
   cosmwasm/rust-optimizer:0.12.11
 ```
 
-# 部署
+# deploy
 
 ```bash
 seid tx wasm store artifacts/mock_swap_pair.wasm -y --from=admin \
@@ -20,7 +21,7 @@ seid tx wasm store artifacts/mock_swap_pair.wasm -y --from=admin \
 --gas=1500000 --gas-prices=0.01usei --broadcast-mode=block
 ```
 
-# 实例化
+# instantiate
 
 ```bash
 seid tx wasm instantiate 753 '{"asset_infos":[{"native_token":{"denom":"usei"}},{"native_token":{"denom":"factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt"}}],"swap_0_to_1_price":"121000000"}' \
@@ -29,11 +30,11 @@ seid tx wasm instantiate 753 '{"asset_infos":[{"native_token":{"denom":"usei"}},
 --admin sei13xy3940qrar0k82k7fzhjpqaxj0h0tep7cpuxz
 ```
 
-返回合约地址：`sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a303m`
+contract address ： `sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a303m`
 
-# 配置及查询
+# Configuration and query
 
-设置价格
+Set price
 
 ```bash
 seid tx wasm execute sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a303m \
@@ -42,8 +43,8 @@ seid tx wasm execute sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a3
 --gas=200000 --gas-prices=0.01usei --broadcast-mode=block
 ```
 
-兑换
-ps: 需要将这个合约转入一定数量的usei以及usdt
+exchange
+ps: This contract needs to be transferred to a certain amount of usei and usdt
 
 ```bash
 seid tx wasm execute sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a303m \
@@ -52,7 +53,7 @@ seid tx wasm execute sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a3
 --gas=200000 --gas-prices=0.01usei --broadcast-mode=block
 ```
 
-查询价格 usei -> usdt
+Check price usei -> usdt
 
 ```bash
 seid query wasm contract-state smart sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a303m \
@@ -60,7 +61,7 @@ seid query wasm contract-state smart sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdn
 	--chain-id atlantic-2 --node https://sei-testnet-2-rpc.brocha.in/ --output json
 ```
 
-查询价格 usdt -> usei
+Check price usdt -> usei
 
 ```bash
 seid query wasm contract-state smart sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a303m \
@@ -68,7 +69,7 @@ seid query wasm contract-state smart sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdn
 	--chain-id atlantic-2 --node https://sei-testnet-2-rpc.brocha.in/ --output json
 ```
 
-转账
+transfer
 
 ```bash
 seid tx bank send admin sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq8a303m 20000usei \
@@ -82,7 +83,7 @@ seid tx bank send admin sei1rp6tz0nu2nr0tu2sqykulms2d6cxmvnraectkdnkt9p7uma9hceq
 --gas=100000 --gas-prices=0.01usei --broadcast-mode=block 
 ```
 
-查询地址余额
+Check address balance
 
 ```bash
 seid query bank balances sei13xy3940qrar0k82k7fzhjpqaxj0h0tep7cpuxz --chain-id atlantic-2 --node https://sei-testnet-2-rpc.brocha.in/
